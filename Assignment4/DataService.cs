@@ -152,7 +152,60 @@ product name and category name.*/
             //TODO delete Category with the id, and return true.
         }
 
+
+    }
+
+    class program
+    {
+
+       
+
+        public static void Main()
+        {
+            var ds = new DataService();
+
+            foreach (var category in ds.GetCategories())
+            {
+                Console.WriteLine($"{category.Id} {category.Name}");
+            }
+        }
     }
 
 }
 
+
+
+/*  HELPERS
+            //using var db = new NorthwindContex();
+
+            //var nextId = db.Categories.Max(x => x.Id) + 1;
+
+            // Create 
+            //var cat = new Category
+            //{
+            //    Id = nextId,
+            //    Name = "Testing",
+            //    Description = "blah blah ..."
+            //};
+
+            //db.Categories.Add(cat);
+
+            // update
+            //var cat = db.Categories.Find(9);
+
+            //cat.Name = "Updating name";
+
+            //var cat = db.Categories.Find(9);
+            //db.Categories.Remove(cat);
+
+            //db.SaveChanges();
+
+            var ds = new DataService();
+
+
+            foreach (var category in ds.GetCategories())
+            {
+                Console.WriteLine($"{category.Id} {category.Name}" );
+            }
+        } 
+*/
