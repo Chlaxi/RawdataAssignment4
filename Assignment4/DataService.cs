@@ -10,5 +10,8 @@ namespace Assignment4
 {
     public class DataService
     {
+
+        using var db = new NorthwindContext();
+        return db.Categories.ToList();
     }
 }
