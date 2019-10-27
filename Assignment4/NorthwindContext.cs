@@ -7,15 +7,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignment4
 {
-    public class NorthwindContex : DbContext
+    public class NorthwindContext : DbContext
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderDetails> OrderDetails { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(
-                "host=localhost;db=northwind;uid=bulskov;pwd=henrik");
+                "host=localhost;db=northwind;uid=postgres;pwd=");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
