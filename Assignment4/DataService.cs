@@ -19,7 +19,15 @@ namespace Assignment4
             /* TODO Return the complete order, i.e. all attributes of the order, the complete list of
 order details. Each order detail should include the product which must include
 the category.*/
-            return null;
+            using var db = new NorthwindContext();
+
+            var order = db.Orders.Find(id);
+
+            if (order == null)
+                return null;
+
+            return order;
+
         }
 
         //2.
@@ -62,7 +70,11 @@ the category.*/
         //6.
         public Product GetProduct(int id)
         {
-            var product = new Product();
+            using var db = new NorthwindContext();
+            var product = db.Products.Find(id);
+            int cid = product.CategoryId;
+            product.CategoryName = (from cat in db.Categories where cat.Id == cid select cat.Name).ToString();
+
 
             /* TODO Return the complete product with name, unit price and category name.*/
 
@@ -98,79 +110,82 @@ product name and category name.*/
         //9.
         public Category GetCategory(int id)
         {
-            /*TODO Implent following functionality:
-            Return the category if found otherwise return null.
-                */
+            using var db = new NorthwindContext();
 
-            /*            foreach(Category cat in Categories)
-                        {
-                            if (id = cat.Id)
-                                return cat;
-                        }
-            */
-            return null;
+            var cat = db.Categories.Find(id);
+
+             if(cat == null)
+                return null;
+
+             return cat;
         }
 
         //10.
         public List<Category> GetCategories()
         {
-            using var db = new NorthwindContext();
+            using var db = new NorthwindContext();        
             return db.Categories.ToList();
         }
 
         //11.
         public Category CreateCategory(string name, string description)
         {
-            var cat = new Category();
+            using var db = new NorthwindContext();
 
-            cat.Name = name;
-            cat.Description = description;
+            var newId = db.Categories.Max(x => x.Id) + 1;
 
-            //TODO find highest ID (max(Id)), and set cat.Id=max(Id)+1);
+            var cat = new Category
+            {
+                Id = newId,
+                Name = name,
+                Description = description
+            };
 
+            Console.WriteLine("Created a new Category with id: " + newId + ", Name: " + cat.Name + ", Description: " + cat.Description);
+            db.Categories.Add(cat);
+  //          db.SaveChanges();
             return cat;
         }
 
         //12.
         public bool UpdateCategory(int id, string name, string description)
         {
-            //TODO Search all Ids. if not exists, return false.
+            using var db = new NorthwindContext();
 
-            return false;
+            var cat = db.Categories.Find(id);
+            if (cat == null)
+            {
+                Console.WriteLine("Item with id " + id + " was not found");
+                return false;
+            }
 
-            //TODO for the object found, update the name and description. Return true.
-
+            Console.WriteLine("Updated item with id " + id + ". \n Name: from: " + cat.Name + " to " + name + "\n Description from: " + cat.Description + " to " + description);
+            cat.Name = name;
+            cat.Description = description;
+ //           db.SaveChanges();
+            return true;
         }
 
         //13.
         public bool DeleteCategory(int id)
         {
-            //TODO Search all Ids. if not exists, return false.
+            using var db = new NorthwindContext();
 
-            return false;
-
-            //TODO delete Category with the id, and return true.
-        }
-
-
-    }
-
-    class program
-    {
-
-       
-
-        public static void Main()
-        {
-            var ds = new DataService();
-
-            foreach (var category in ds.GetCategories())
+            var cat = db.Categories.Find(id);
+            if (cat == null)
             {
-                Console.WriteLine($"{category.Id} {category.Name}");
+                Console.WriteLine("Item with id " + id + " was not found");
+                return false;
             }
-        }
-    }
 
+            Console.WriteLine("Removing "+ cat.ToString());
+            db.Remove(cat);
+//            db.SaveChanges();
+            return true;
+        }
+
+
+    }
 }
 
 

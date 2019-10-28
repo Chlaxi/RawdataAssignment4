@@ -19,7 +19,7 @@ namespace Assignment4
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(
-                "host=localhost;db=northwind;uid=postgres;pwd=");
+                "host=localhost;db=Northwind;uid=postgres;pwd=Arazeena");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,22 +42,24 @@ namespace Assignment4
             modelBuilder.Entity<OrderDetails>().Property(m => m.UnitPrice).HasColumnName("unitprice");
             modelBuilder.Entity<OrderDetails>().Property(m => m.Quantity).HasColumnName("quantity");
             modelBuilder.Entity<OrderDetails>().Property(m => m.Discount).HasColumnName("discount");
-
+            modelBuilder.Entity<OrderDetails>().HasKey(m => m.OrderId);
+            modelBuilder.Entity<OrderDetails>().HasKey(m => m.ProductId);
 
             //Categories
             modelBuilder.Entity<Category>().ToTable("categories");
             modelBuilder.Entity<Category>().Property(m => m.Id).HasColumnName("categoryid");
             modelBuilder.Entity<Category>().Property(m => m.Name).HasColumnName("categoryname");
-
+            modelBuilder.Entity<Category>().Property(m => m.Description).HasColumnName("description");
 
             //Products
             modelBuilder.Entity<Product>().ToTable("products");
             modelBuilder.Entity<Product>().Property(m => m.Id).HasColumnName("productid");
             modelBuilder.Entity<Product>().Property(m => m.Name).HasColumnName("productname");
+            modelBuilder.Entity<Product>().Property(m => m.ProductName).HasColumnName("productname");
             modelBuilder.Entity<Product>().Property(m => m.CategoryId).HasColumnName("categoryid");
             modelBuilder.Entity<Product>().Property(m => m.UnitPrice).HasColumnName("unitprice");
             modelBuilder.Entity<Product>().Property(m => m.UnitsInStock).HasColumnName("unitsinstock");
-
+            modelBuilder.Entity<Product>().HasKey(m => m.Id);
         }
     }
 }
