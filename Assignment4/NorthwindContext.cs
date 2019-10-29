@@ -33,17 +33,19 @@ namespace Assignment4
             modelBuilder.Entity<Order>().Property(m => m.Freight).HasColumnName("freight");
             modelBuilder.Entity<Order>().Property(m => m.ShipName).HasColumnName("shipname");
             modelBuilder.Entity<Order>().Property(m => m.ShipCity).HasColumnName("shipcity");
+            modelBuilder.Entity<Order>().Ignore(m => m.OrderDetails);
+            modelBuilder.Entity<Order>().HasKey(m => m.Id);
 
-
-            //Order Details
-            modelBuilder.Entity<OrderDetails>().ToTable("orderdetails");
+        //Order Details
+        modelBuilder.Entity<OrderDetails>().ToTable("orderdetails");
             modelBuilder.Entity<OrderDetails>().Property(m => m.OrderId).HasColumnName("orderid");
             modelBuilder.Entity<OrderDetails>().Property(m => m.ProductId).HasColumnName("productid");
             modelBuilder.Entity<OrderDetails>().Property(m => m.UnitPrice).HasColumnName("unitprice");
             modelBuilder.Entity<OrderDetails>().Property(m => m.Quantity).HasColumnName("quantity");
             modelBuilder.Entity<OrderDetails>().Property(m => m.Discount).HasColumnName("discount");
-            modelBuilder.Entity<OrderDetails>().HasKey(m => m.OrderId);
-            modelBuilder.Entity<OrderDetails>().HasKey(m => m.ProductId);
+            modelBuilder.Entity<OrderDetails>().Ignore(m => m.Product);
+            modelBuilder.Entity<OrderDetails>().Ignore(m => m.Order);
+            modelBuilder.Entity<OrderDetails>().HasKey(m => new { m.OrderId, m.ProductId});
 
             //Categories
             modelBuilder.Entity<Category>().ToTable("categories");
@@ -55,10 +57,12 @@ namespace Assignment4
             modelBuilder.Entity<Product>().ToTable("products");
             modelBuilder.Entity<Product>().Property(m => m.Id).HasColumnName("productid");
             modelBuilder.Entity<Product>().Property(m => m.Name).HasColumnName("productname");
-            modelBuilder.Entity<Product>().Property(m => m.ProductName).HasColumnName("productname");
             modelBuilder.Entity<Product>().Property(m => m.CategoryId).HasColumnName("categoryid");
             modelBuilder.Entity<Product>().Property(m => m.UnitPrice).HasColumnName("unitprice");
             modelBuilder.Entity<Product>().Property(m => m.UnitsInStock).HasColumnName("unitsinstock");
+            modelBuilder.Entity<Product>().Property(m => m.QuantityPerUnit).HasColumnName("quantityperunit");
+            modelBuilder.Entity<Product>().Ignore(m => m.ProductName);
+           modelBuilder.Entity<Product>().Ignore(m => m.CategoryName);
             modelBuilder.Entity<Product>().HasKey(m => m.Id);
         }
     }

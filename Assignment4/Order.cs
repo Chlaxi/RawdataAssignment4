@@ -15,7 +15,7 @@ namespace Assignment4
         public string ShipName { get; set; }
         public string ShipCity { get; set; }
 
-        public OrderDetails OrderDetails { get; set; }
+        public List<OrderDetails> OrderDetails { get; set; }
 
     }
 }
