@@ -24,32 +24,14 @@ the category.*/
 
             using var db = new NorthwindContext();
 
-            var GroupJoin = from ord in db.Orders.ToArray()
-                            orderby ord.Id
-                            join det in db.OrderDetails.ToArray()
-                            on ord.Id equals det.OrderId
-                            into orderDetails
-                            select new
-                            {
-                                Order = ord,
-                                Detail = from newDet in orderDetails
-                                         orderby newDet.ProductId
-                                         select newDet
-                            };
-
-            var order = new Order();
-            int totalDetails =0;
-
-            foreach (var orderDetails in GroupJoin)
-            {
-                
-                Console.WriteLine("Order Id:"+orderDetails.Order.Id);
-                foreach(var detail in orderDetails.Detail)
-                {
-                    totalDetails++;
-                    //orderDetails.CurOrd.OrderDetails.Add(detail);
-                     Console.WriteLine("Product ID: {0}: unit price = {1}, quantity of {2} with a discount of {3]", detail.ProductId, detail.UnitPrice, detail.Quantity, detail.Discount);
-                }
+            var order = db.Orders.Find(id);
+            order.OrderDetails = GetOrderDetailsByOrderId(id);
+            
+            Console.WriteLine("Order Id: {0}, shipped on {1}, has {2} details. It was sent to {3} with the ship {4}",
+                order.Id, order.Date, order.OrderDetails.Count, order.ShipCity, order.ShipName);
+            foreach (var detail in order.OrderDetails){
+                Console.WriteLine("Product: {0} (ID: {1}). Unit price = {2}, quantity of {3} with a discount of {4}", detail.Product.Name, detail.ProductId, detail.UnitPrice, detail.Quantity, detail.Discount);
+                Console.WriteLine("The product is of the {0} category", detail.Product.CategoryName);
             }
 
             return order;
@@ -146,6 +128,7 @@ the category.*/
         }
 
         //OrderDetail
+            
         //4.
         /// <summary>
         /// Return the order details for an order with product name, unit price, quantity.
@@ -159,31 +142,41 @@ the category.*/
 
             var orderDetails = from details in db.OrderDetails
                                join product in db.Products on details.ProductId equals product.Id
+                               join order in db.Orders on details.OrderId equals order.Id
                                where details.OrderId == id
                                select new
                                {
-                                   OrderId = id,
-                                   Product = product,
-                                   UnitPrice = details.UnitPrice,
-                                   Quantity = details.Quantity
+                                   Order = order,
+                                   details.OrderId,
+                                   ProductId = product.Id,
+                                   details.UnitPrice,
+                                   details.Quantity,
+                                   details.Discount    
                                };
 
             List<OrderDetails> result = new List<OrderDetails>();
             Console.WriteLine("Order with id "+id+" contains");
             foreach(var detail in orderDetails)
             {
+
                 OrderDetails newOrder = new OrderDetails()
                 {
-                    OrderId = detail.OrderId,
-                    Product = detail.Product,
+                    Order = detail.Order,
+                    Product = GetProduct(detail.ProductId),
                     UnitPrice = detail.UnitPrice,
-                    Quantity = detail.Quantity
+                    Quantity = detail.Quantity,
+                    ProductId = detail.ProductId,
+                    Discount = detail.Discount,
+                    OrderId = detail.OrderId
+                    
                 };
                 result.Add(newOrder);
-                Console.WriteLine("{0}, at the price of {1} per piece. {2} was ordered",detail.Product.Name, detail.UnitPrice, detail.Quantity);
+                Console.WriteLine("Product name: {0}", newOrder.Product.Name);
+                Console.WriteLine("Price: {0}. quantity {1}", newOrder.UnitPrice, newOrder.Quantity);
+                Console.WriteLine("Order Id: {0}", newOrder.Order.Id);
+                Console.WriteLine("Date: {0}", newOrder.Order.Date);
+                Console.WriteLine("{0}, at the price of {1} per piece. {2} was ordered with order id of {3} on {4}", newOrder.Product.Name, newOrder.UnitPrice, newOrder.Quantity, newOrder.Order.Id, newOrder.Order.Date);
             }
-
-            
 
             return result;
         }
@@ -195,33 +188,50 @@ the category.*/
             using var db = new NorthwindContext();
 
             var orderDetails = from details in db.OrderDetails
+                               join product in db.Products on details.ProductId equals product.Id
                                join order in db.Orders on details.OrderId equals order.Id
                                where details.ProductId == id
                                select new
                                {
-                                   productId = id,
                                    Order = order,
-                                   UnitPrice = details.UnitPrice,
-                                   Quantity = details.Quantity
+                                   details.OrderId,
+                                   details.ProductId,
+                                   details.UnitPrice,
+                                   details.Quantity,
+                                   details.Discount
                                };
 
-            List<OrderDetails> result = new List<OrderDetails>();
-            Console.WriteLine("Order with id " + id + " contains");
+            int i = 0;
+            List<OrderDetails> result = new List<OrderDetails>();            
+
+            Console.WriteLine("Order with Product ids " + id + " contains");
+            
             foreach (var detail in orderDetails)
             {
+                Console.WriteLine("num "+i);
+                Console.WriteLine("Order ID= "+db.Orders.Find(detail.OrderId).Id);
                 OrderDetails newOrder = new OrderDetails()
                 {
-
-                    ProductId = detail.productId,
                     Order = detail.Order,
+                    Product = GetProduct(detail.ProductId),
                     UnitPrice = detail.UnitPrice,
-                    Quantity = detail.Quantity
-                };
-                result.Add(newOrder);
-                Console.WriteLine("An order was made the {0}, at the price of {1} per piece. {2} was ordered", detail.Order.Date, detail.UnitPrice, detail.Quantity);
-            }
+                    Quantity = detail.Quantity,
+                    ProductId = detail.ProductId,
+                    Discount = detail.Discount,
+                    OrderId = detail.OrderId
 
-          return result;
+                };
+                i++;
+                Console.WriteLine("{0}, at the price of {1} per piece. {2} was ordered with order id of {3} on {4}"
+                    ,newOrder.Product.Name, newOrder.UnitPrice, newOrder.Quantity, newOrder.Order.Id, newOrder.Order.Date);
+                Console.WriteLine();
+                result.Add(newOrder);
+
+            }
+            
+
+
+            return result;
         }
 
         //Product
@@ -243,14 +253,9 @@ the category.*/
             }
             Console.WriteLine("Product found!");
 
-            var catName = from pro in db.Products
-                               join cat in db.Categories
-                               on pro.CategoryId equals cat.Id
-                               where (pro.Id == id)
-                               select new { Category = cat};
+            var cat = GetCategory(product.CategoryId);
 
-            product.Category = catName.First().Category;
-            product.Category.Name = catName.First().Category.Name;
+            product.Category = cat;
             Console.WriteLine("Category name for product "+ product.Name+" is set to "+product.CategoryName);
 
             return product;
@@ -273,13 +278,12 @@ the category.*/
                          where prod.Name.Contains(name)
                          select prod.Id;
 
-            foreach(var i in query)
+            foreach (var i in query)
             {
                 Product product = GetProduct(i);
-                Console.WriteLine(product.ProductName+" "+product.Category.Name);
+                Console.WriteLine(product.ProductName + " " + product.Category.Name);
                 products.Add(product);
             }
-            
 
             return products;
         }

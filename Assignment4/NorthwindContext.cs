@@ -29,7 +29,7 @@ namespace Assignment4
             modelBuilder.Entity<Order>().Property(m => m.Id).HasColumnName("orderid");
             modelBuilder.Entity<Order>().Property(m => m.Date).HasColumnName("orderdate");
             modelBuilder.Entity<Order>().Property(m => m.Required).HasColumnName("requireddate");
-            modelBuilder.Entity<Order>().Property(m => m.Shipped).HasColumnName("shippeddate");
+            modelBuilder.Entity<Order>().Property(m => m.Shipped).HasColumnName("shippeddate").IsRequired(false);
             modelBuilder.Entity<Order>().Property(m => m.Freight).HasColumnName("freight");
             modelBuilder.Entity<Order>().Property(m => m.ShipName).HasColumnName("shipname");
             modelBuilder.Entity<Order>().Property(m => m.ShipCity).HasColumnName("shipcity");
