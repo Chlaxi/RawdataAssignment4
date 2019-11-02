@@ -16,9 +16,11 @@ namespace Assignment4
         //Orders
 
         //1.
-        /* TODO Return the complete order, i.e. all attributes of the order, the complete list of
-order details. Each order detail should include the product which must include
-the category.*/
+        /// <summary>
+        /// Gets an order, including its order details
+        /// </summary>
+        /// <param name="id">The order id</param>
+        /// <returns>Returns an order</returns>
         public Order GetOrder(int id)
         {
 
@@ -27,13 +29,13 @@ the category.*/
             var order = db.Orders.Find(id);
             order.OrderDetails = GetOrderDetailsByOrderId(id);
             
-            Console.WriteLine("Order Id: {0}, shipped on {1}, has {2} details. It was sent to {3} with the ship {4}",
+           /*Console.WriteLine("Order Id: {0}, shipped on {1}, has {2} details. It was sent to {3} with the ship {4}",
                 order.Id, order.Date, order.OrderDetails.Count, order.ShipCity, order.ShipName);
             foreach (var detail in order.OrderDetails){
                 Console.WriteLine("Product: {0} (ID: {1}). Unit price = {2}, quantity of {3} with a discount of {4}", detail.Product.Name, detail.ProductId, detail.UnitPrice, detail.Quantity, detail.Discount);
                 Console.WriteLine("The product is of the {0} category", detail.Product.CategoryName);
             }
-
+            */
             return order;
 
         }
@@ -50,13 +52,7 @@ the category.*/
 
             var ordersByShip = from order in db.Orders
                                where order.ShipName.Contains(shipName)
-                               select new
-                               {
-                                   order.Id,
-                                   order.Date,
-                                   order.ShipName,
-                                   order.ShipCity
-                               };
+                               select order.Id;
 
             var orderArr = ordersByShip.ToArray();
 
@@ -67,16 +63,9 @@ the category.*/
             }
 
             List<Order> orderList = new List<Order>();
-            foreach (var o in orderArr)
+            foreach (var orderId in orderArr)
             {
-                Order newOrder = new Order()
-                {
-                    Id = o.Id,
-                    Date = o.Date,
-                    ShipName = o.ShipName,
-                    ShipCity = o.ShipCity
-                };
-                orderList.Add(newOrder);
+                orderList.Add(GetOrder(orderId));
             }
 
             return orderList;
@@ -94,13 +83,7 @@ the category.*/
             List<Order> orders = new List<Order>();
 
             var orderQ = from order in db.Orders
-                               select new
-                               {
-                                   order.Id,
-                                   order.Date,
-                                   order.ShipName,
-                                   order.ShipCity
-                               };
+                         select order;
 
             var orderArr = orderQ.ToArray();
             Console.WriteLine(orderArr.Length+" elements in array");
@@ -111,16 +94,9 @@ the category.*/
             }
 
             List<Order> orderList = new List<Order>();
-            foreach (var o in orderArr)
+            foreach (var orderId in orderArr)
             {
-                Order newOrder = new Order()
-                {
-                    Id = o.Id,
-                    Date = o.Date,
-                    ShipName = o.ShipName,
-                    ShipCity = o.ShipCity
-                };
-                orderList.Add(newOrder);
+                orderList.Add(GetOrder(orderId.Id));
             }
 
             return orderList;
@@ -182,6 +158,11 @@ the category.*/
         }
 
         //5.
+        /// <summary>
+        /// Gets all order details, based on a specific product.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>The full order details, based on a product</returns>
         public List<OrderDetails> GetOrderDetailsByProductId(int id)
         {
             /* TODO Return the complete list of details, with order date, unit price, quantity */
@@ -259,6 +240,19 @@ the category.*/
             Console.WriteLine("Category name for product "+ product.Name+" is set to "+product.CategoryName);
 
             return product;
+        }
+
+        public List<Product> GetProducts()
+        {
+            using var db = new NorthwindContext();
+
+            List<Product> products = new List<Product>();
+            foreach (var i in db.Products)
+            {
+                products.Add(GetProduct(i.Id));
+            }
+
+            return products;
         }
 
         //7.
@@ -359,6 +353,9 @@ the category.*/
             using var db = new NorthwindContext();
 
             var newId = db.Categories.Max(x => x.Id) + 1;
+
+            if (name == null || description == null)
+                return null;
 
             var cat = new Category
             {

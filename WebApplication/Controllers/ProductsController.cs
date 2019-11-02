@@ -15,20 +15,19 @@ namespace WebApplication.Controllers
         private DataService ds = new DataService();
 
 
-        public string Index()  //ActionResult Index()
+      /*  public string Index()  //ActionResult Index()
         {
 
             return "Product Index";   //View();
-        }
+        }*/
 
 
-        //Get all products TODO: Refactor
         [HttpGet]
         public ActionResult GetProducts()
         {
-            using var db = new NorthwindContext();
-                        
-            return Ok(db.Products.ToArray());
+            List<Product> products = ds.GetProducts();
+            if (products.Count == 0) return NotFound();
+            return Ok(products);
         }
 
         [HttpGet("{productId}")]
@@ -39,5 +38,26 @@ namespace WebApplication.Controllers
             return Ok(product);
         }
 
+        [HttpGet("text/{query}")]
+        public ActionResult SearchProduct(string query)
+        {
+            List<Product> products = ds.GetProductByName(query);
+            if (products.Count == 0) return NotFound();
+
+            return Ok(products);
+        }
+
+
+        [HttpGet("category/{cat}")]
+        public ActionResult GetProductsByCategory(int cat)
+        {
+            List<Product> products = ds.GetProductByCategory(cat);
+            Console.WriteLine(products.Count);
+            if (products.Count == 0) return NotFound();
+            
+            return Ok(products);
+        
+        }
     }
+
 }
