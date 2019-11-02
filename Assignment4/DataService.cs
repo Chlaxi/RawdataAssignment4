@@ -351,11 +351,7 @@ namespace Assignment4
         public Category CreateCategory(string name, string description)
         {
             using var db = new NorthwindContext();
-
             var newId = db.Categories.Max(x => x.Id) + 1;
-
-            if (name == null || description == null)
-                return null;
 
             var cat = new Category
             {
@@ -363,8 +359,6 @@ namespace Assignment4
                 Name = name,
                 Description = description
             };
-
-            Console.WriteLine("Created a new Category with id: " + newId + ", Name: " + cat.Name + ", Description: " + cat.Description);
             db.Categories.Add(cat);
             db.SaveChanges();
             return cat;
