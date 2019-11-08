@@ -37,23 +37,23 @@ namespace WebApplication.Controllers
 
         
         [HttpPost]
-        public ActionResult CreateCategory(string name, string description)
+        public ActionResult CreateCategory([FromBody] CategoryForCreation cat)
         {
-            Category category = ds.CreateCategory(name, description);
+            
+            Category category = ds.CreateCategory(cat.Name, cat.Description);
             if (category == null) return NotFound();
 
-            CategoryDTO DTO = CreateCategoryDto(category);
-
-            return CreatedAtRoute(nameof(GetCategory), new { id = category.Id }, DTO);
+            return CreatedAtRoute(nameof(GetCategory), new { id = category.Id }, category);
         }
 
 
         [HttpPut("{id}")]
-        public ActionResult UpdateCategory(int id, string name, string description)
+        public ActionResult UpdateCategory(int id, [FromBody] CategoryForCreation cat)
         {
-            bool result = ds.UpdateCategory(id, name, description);
+            bool result = ds.UpdateCategory(id, cat.Name, cat.Description);
             if (!result) return NotFound();
-            return Ok(ds.GetCategory(id));
+
+            return Ok(CreateCategoryDto(ds.GetCategory(id)));
         }
 
         [HttpDelete("{id}")]
